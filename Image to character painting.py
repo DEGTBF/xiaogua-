@@ -1,5 +1,3 @@
-# xiaogua-
-guaguagua
 from PIL import Image
 
 def image_to_ascii(image_path, width=100):
