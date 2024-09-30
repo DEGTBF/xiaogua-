@@ -162,7 +162,7 @@ clear();
             console.info(` - GameId: ${gameId}. Balance: ${oldBalance}`)
 
             if (gameId) {
-                const gamePlayingTime = Math.floor(Math.random() * 21 + 50) * 1000
+                const gamePlayingTime = Math.floor(Math.random() * 16 + 45) * 1000
                 console.info(` - Play the game in ${gamePlayingTime/1000} seconds`)
                 await sleep(gamePlayingTime)
 
