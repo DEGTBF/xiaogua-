@@ -173,7 +173,7 @@ clear();
                 console.info(` - Claim Status: ${claimText}. Game Points: ${newBalance - oldBalance}. New balance: ${newBalance}. `)
 
                 // relax before go to next game
-                const restTime = Math.floor(Math.random() * 11 + 10) * 1000
+                const restTime = Math.floor(Math.random() * 11 + 15) * 1000
                 await sleep(restTime);
 
                 gameCounter++;
