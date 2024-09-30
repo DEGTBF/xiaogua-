@@ -187,6 +187,6 @@ clear();
         console.info(" - [ DONE ALL ] ")
     }
 
-    const accessToken = 'Bearer xxxxxxx';
+    const accessToken = 'YOUR_TOKEN';
     await playAndClaimGame(accessToken);
 })()
