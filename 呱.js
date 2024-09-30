@@ -141,7 +141,7 @@ clear();
 
             console.info(` - ${gameCounter}. Start Play game..`)
             const _points = Math.floor(
-                Math.random() * (120 - 80+1) + 110
+                Math.random() * (120 - 80+1) + 120
             );
 
             // get balance before play game
