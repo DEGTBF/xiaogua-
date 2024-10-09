@@ -1,73 +1,9 @@
-// 更新后的 token
-const token = "377e0b95f8c02a74107fc55c0e6bda07";
-
-// 查询用户余额的函数
-async function getUserInfo() {
-    const response = await fetch("https://copxgame.copx.ai/miniapp/User/UserInfo", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"
-        },
-        body: JSON.stringify({
-            token: token
-        })
-    });
-
-    if (!response.ok) {
-        console.error("网络响应不正常:", response.status);
-        return null; // 返回 null 表示网络问题
-    }
-
-    const data = await response.json();
-    if (data.error !== 0) {
-        console.error("查询用户信息失败:", data.msg);
-        if (data.msg === "TOKEN 失效" || data.error === 401) { // 检测 token 失效
-            console.log("TOKEN 失效，停止操作。");
-            return "TOKEN_INVALID"; // 返回 token 失效标记
-        }
-        return null; // 返回 null 作为失败标记
-    }
-
-    console.log("用户余额:", data.data.vu); // 输出用户余额
-    return parseFloat(data.data.vu); // 返回余额
-}
-
-// 下注的函数
-async function placeBet(betAmount, direction) {
-    const response = await fetch("https://copxgame.copx.ai/miniapp/User/GameJoin", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"
-        },
-        body: JSON.stringify({
-            token: token,
-            num: betAmount,
-            gametype: direction // 使用下注方向
-        })
-    });
-
-    const data = await response.json();
-    if (data.error !== 0) {
-        console.error("下注失败:", data.msg);
-        if (data.msg === "TOKEN 失效" || data.error === 401) { // 检测 token 失效
-            console.log("TOKEN 失效，停止下注。");
-            return "TOKEN_INVALID"; // 返回 token 失效标记
-        }
-    }
-    console.log("下注结果:", data);
-    return data; // 返回下注结果
-}
-
 // 主循环函数
 async function mainLoop() {
     let previousBalance; // 存储上一个余额
     let betDirection = 1; // 初始下注方向：1表示上涨，2表示下跌
     let lossCount = 0; // 记录连续输的次数
-    let winCount = 0; // 记录赢的次数
-    let totalLossCount = 0; // 记录总输的次数
-    let totalWinCount = 0; // 记录总赢的次数
+    let winCount = 0; // 记录连续赢的次数
 
     while (true) {
         // 查询用户余额
@@ -90,9 +26,9 @@ async function mainLoop() {
             // 检查输赢
             if (balance < previousBalance) {
                 lossCount++; // 输了，增加输的次数
-                totalLossCount++; // 增加总输的次数
                 console.log("输了，当前连续输的次数:", lossCount);
-                
+                winCount = 0; // 赢的计数重置
+
                 // 如果输的次数达到3次，切换下注方向
                 if (lossCount >= 3) {
                     console.log("连续输了三次，切换下注方向。");
@@ -101,9 +37,15 @@ async function mainLoop() {
                 }
             } else {
                 winCount++; // 赢了，增加赢的次数
-                totalWinCount++; // 增加总赢的次数
                 console.log("赢了，当前连续赢的次数:", winCount);
-                lossCount = 0; // 赢了，重置输的计数
+                lossCount = 0; // 输的计数重置
+
+                // 如果赢的次数达到3次，切换下注方向
+                if (winCount >= 3) {
+                    console.log("连续赢了三次，切换下注方向。");
+                    betDirection = betDirection === 1 ? 2 : 1; // 赢了，切换方向
+                    winCount = 0; // 重置赢的计数
+                }
             }
         }
 
@@ -144,10 +86,6 @@ async function mainLoop() {
         console.log(`等待 ${waitTime / 1000} 秒后重新下注...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
     }
-
-    // 输出总赢输情况
-    console.log(`总赢的次数: ${totalWinCount}`);
-    console.log(`总输的次数: ${totalLossCount}`);
 }
 
 // 启动主循环
