@@ -1,3 +1,65 @@
+// 更新后的 token
+const token = "377e0b95f8c02a74107fc55c0e6bda07";
+
+// 查询用户余额的函数
+async function getUserInfo() {
+    const response = await fetch("https://copxgame.copx.ai/miniapp/User/UserInfo", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"
+        },
+        body: JSON.stringify({
+            token: token
+        })
+    });
+
+    if (!response.ok) {
+        console.error("网络响应不正常:", response.status);
+        return null; // 返回 null 表示网络问题
+    }
+
+    const data = await response.json();
+    if (data.error !== 0) {
+        console.error("查询用户信息失败:", data.msg);
+        if (data.msg === "TOKEN 失效" || data.error === 401) { // 检测 token 失效
+            console.log("TOKEN 失效，停止操作。");
+            return "TOKEN_INVALID"; // 返回 token 失效标记
+        }
+        return null; // 返回 null 作为失败标记
+    }
+
+    console.log("用户余额:", data.data.vu); // 输出用户余额
+    return parseFloat(data.data.vu); // 返回余额
+}
+
+// 下注的函数
+async function placeBet(betAmount, direction) {
+    const response = await fetch("https://copxgame.copx.ai/miniapp/User/GameJoin", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"
+        },
+        body: JSON.stringify({
+            token: token,
+            num: betAmount,
+            gametype: direction // 使用下注方向
+        })
+    });
+
+    const data = await response.json();
+    if (data.error !== 0) {
+        console.error("下注失败:", data.msg);
+        if (data.msg === "TOKEN 失效" || data.error === 401) { // 检测 token 失效
+            console.log("TOKEN 失效，停止下注。");
+            return "TOKEN_INVALID"; // 返回 token 失效标记
+        }
+    }
+    console.log("下注结果:", data);
+    return data; // 返回下注结果
+}
+
 // 主循环函数
 async function mainLoop() {
     let previousBalance; // 存储上一个余额
