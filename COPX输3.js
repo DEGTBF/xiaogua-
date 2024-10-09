@@ -70,8 +70,6 @@ function getRandomBetAmount(baseAmount) {
 // 主循环函数
 async function mainLoop() {
     let previousBalance; // 存储上一个余额
-    let betDirection = 1; // 初始下注方向：1表示上涨，2表示下跌
-    let lossCount = 0; // 记录连续输的次数
     let totalLosses = 0; // 记录总输的次数
     let totalWins = 0; // 记录总赢的次数
 
@@ -91,34 +89,38 @@ async function mainLoop() {
             continue;
         }
 
-        // 第一次查询余额时不做判断
-        if (previousBalance !== undefined) {
-            // 检查输赢
-            if (balance < previousBalance) {
-                lossCount++; // 输了，增加输的次数
-                totalLosses++; // 总输次数加一
-                console.log("输了，当前连续输的次数:", lossCount);
-                
-                // 如果输的次数达到3次，等待 30 到 60 秒
-                if (lossCount >= 3) {
-                    const waitTime = Math.floor(Math.random() * (60000 - 30000 + 1) + 30000); // 生成 30 到 60 秒之间的随机时间
-                    console.log(`连续输了三次，等待 ${waitTime / 1000} 秒...`);
-                    await new Promise(resolve => setTimeout(resolve, waitTime));
-                    lossCount = 0; // 重置输的计数
-                }
-            } else {
-                totalWins++; // 总赢次数加一
-                console.log("赢了，切换下注方向。");
-                betDirection = betDirection === 1 ? 2 : 1; // 赢了，切换方向
-                lossCount = 0; // 输的计数重置
-            }
+        // 生成随机数 0 到 100
+        const randomNum = Math.floor(Math.random() * 101);
+        let betDirection;
+
+        // 根据随机数决定下注方向或等待
+        if (randomNum < 50) {
+            betDirection = 2; // 跌
+            console.log("随机数为", randomNum, "下注方向: 跌");
+        } else if (randomNum > 50) {
+            betDirection = 1; // 涨
+            console.log("随机数为", randomNum, "下注方向: 涨");
+        } else {
+            // 如果随机数等于 50，等待 20 到 40 秒后重新下注
+            const waitTime = Math.floor(Math.random() * (40000 - 20000 + 1)) + 20000;
+            console.log(`随机数为 50，等待 ${waitTime / 1000} 秒后再继续下注...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue; // 跳过当前循环，继续下次下注
         }
 
         // 更新上一个余额
-        previousBalance = balance;
+        if (previousBalance !== undefined) {
+            // 检查输赢
+            if (balance < previousBalance) {
+                totalLosses++; // 总输次数加一
+                console.log("输了");
+            } else {
+                totalWins++; // 总赢次数加一
+                console.log("赢了");
+            }
+        }
 
-        // 输出当前下注方向
-        console.log(`当前下注方向: ${betDirection === 1 ? "上涨" : "下跌"}`);
+        previousBalance = balance;
 
         // 检查余额并设定下注金额
         let betAmount;
@@ -153,7 +155,7 @@ async function mainLoop() {
         console.log(`当前累计输的次数: ${totalLosses}, 当前累计赢的次数: ${totalWins}`);
 
         // 等待 12 到 15 秒之间的随机时间
-        const waitTime = Math.floor(Math.random() * (15000 - 12000 + 1) + 12000);
+        const waitTime = Math.floor(Math.random() * (15000 - 12000 + 1)) + 12000;
         console.log(`等待 ${waitTime / 1000} 秒后重新下注...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
     }
