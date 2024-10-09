@@ -59,6 +59,8 @@ async function mainLoop() {
     let previousBalance; // 存储上一个余额
     let betDirection = 1; // 初始下注方向：1表示上涨，2表示下跌
     let lossCount = 0; // 记录连续输的次数
+    let winCount = 0; // 记录赢的次数
+    let totalLossCount = 0; // 记录总输的次数
 
     while (true) {
         // 查询用户余额
@@ -81,6 +83,7 @@ async function mainLoop() {
             // 检查输赢
             if (balance < previousBalance) {
                 lossCount++; // 输了，增加输的次数
+                totalLossCount++; // 增加总输的次数
                 console.log("输了，当前连续输的次数:", lossCount);
                 
                 // 如果输的次数达到2次，切换下注方向
@@ -90,7 +93,8 @@ async function mainLoop() {
                     lossCount = 0; // 重置输的计数
                 }
             } else {
-                console.log("赢了，保持当前下注方向。");
+                winCount++; // 赢了，增加赢的次数
+                console.log("赢了，当前赢的次数:", winCount);
                 lossCount = 0; // 赢了，重置输的计数
             }
         }
@@ -135,6 +139,9 @@ async function mainLoop() {
             lossCount = 0; // 等待后重置输的计数
             continue; // 跳过本次下注，直接重新开始循环
         }
+
+        // 输出赢和输的统计
+        console.log(`赢的次数: ${winCount}, 输的次数: ${totalLossCount}`);
 
         // 等待 12 到 15 秒之间的随机时间
         const waitTime = Math.floor(Math.random() * (15000 - 12000 + 1) + 12000);
