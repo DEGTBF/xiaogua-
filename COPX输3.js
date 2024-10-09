@@ -60,6 +60,13 @@ async function placeBet(betAmount, direction) {
     return data; // 返回下注结果
 }
 
+// 随机生成下注金额的函数
+function getRandomBetAmount(baseAmount) {
+    const minAmount = Math.max(0, baseAmount - 2000); // 确保最小下注金额不为负
+    const maxAmount = baseAmount + 2000;
+    return Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount; // 生成随机下注金额
+}
+
 // 主循环函数
 async function mainLoop() {
     let previousBalance; // 存储上一个余额
@@ -123,13 +130,13 @@ async function mainLoop() {
         } else if (balance < 20000) {
             betAmount = 5000; // 余额低于 20,000，下注 5,000
         } else if (balance < 100000) {
-            betAmount = 10000; // 余额低于 100,000，下注 10,000
+            betAmount = getRandomBetAmount(10000); // 余额低于 100,000，下注 10,000 ± 2000
         } else if (balance < 500000) {
-            betAmount = 20000; // 余额低于 500,000，下注 20,000
+            betAmount = getRandomBetAmount(20000); // 余额低于 500,000，下注 20,000 ± 2000
         } else if (balance < 1000000) {
-            betAmount = 30000; // 余额低于 1,000,000，下注 30,000
+            betAmount = getRandomBetAmount(30000); // 余额低于 1,000,000，下注 30,000 ± 2000
         } else {
-            betAmount = 40000; // 余额大于 1,000,000，下注 40,000
+            betAmount = getRandomBetAmount(40000); // 余额大于 1,000,000，下注 40,000 ± 2000
         }
 
         // 下注
@@ -140,6 +147,9 @@ async function mainLoop() {
             console.log("TOKEN 已失效，终止程序。");
             break; // 退出主循环
         }
+
+        // 输出下注金额
+        console.log(`本次下注金额: ${betAmount}`);
 
         // 输出累计的输赢次数
         console.log(`当前累计输的次数: ${totalLosses}, 当前累计赢的次数: ${totalWins}`);
