@@ -65,7 +65,6 @@ async function mainLoop() {
     let previousBalance; // 存储上一个余额
     let betDirection = 1; // 初始下注方向：1表示上涨，2表示下跌
     let lossCount = 0; // 记录连续输的次数
-    let winCount = 0; // 记录连续赢的次数
     let totalLosses = 0; // 记录总输的次数
     let totalWins = 0; // 记录总赢的次数
 
@@ -91,27 +90,22 @@ async function mainLoop() {
             if (balance < previousBalance) {
                 lossCount++; // 输了，增加输的次数
                 totalLosses++; // 总输次数加一
-                winCount = 0; // 赢的计数重置
                 console.log("输了，当前连续输的次数:", lossCount);
                 
-                // 如果输的次数达到5次，切换下注方向
-                if (lossCount >= 5) {
-                    console.log("连续输了五次，切换下注方向。");
-                    betDirection = betDirection === 1 ? 2 : 1; // 输了，切换方向
+                // 如果输的次数达到3次，等待 30 到 60 秒
+                if (lossCount >= 3) {
+                    const waitTime = Math.floor(Math.random() * (60000 - 30000 + 1) + 30000); // 生成 30 到 60 秒之间的随机时间
+                    console.log(`连续输了三次，等待 ${waitTime / 1000} 秒...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
                     lossCount = 0; // 重置输的计数
                 }
+
+                // 切换下注方向
+                betDirection = betDirection === 1 ? 2 : 1; // 输了，切换方向
             } else {
-                winCount++; // 赢了，增加赢的次数
                 totalWins++; // 总赢次数加一
+                console.log("赢了，保持当前下注方向。");
                 lossCount = 0; // 输的计数重置
-                console.log("赢了，当前连续赢的次数:", winCount);
-                
-                // 如果赢的次数达到5次，切换下注方向
-                if (winCount >= 5) {
-                    console.log("连续赢了五次，切换下注方向。");
-                    betDirection = betDirection === 1 ? 2 : 1; // 赢了，切换方向
-                    winCount = 0; // 重置赢的计数
-                }
             }
         }
 
