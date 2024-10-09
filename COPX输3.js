@@ -106,12 +106,10 @@ async function mainLoop() {
                     await new Promise(resolve => setTimeout(resolve, waitTime));
                     lossCount = 0; // 重置输的计数
                 }
-
-                // 切换下注方向
-                betDirection = betDirection === 1 ? 2 : 1; // 输了，切换方向
             } else {
                 totalWins++; // 总赢次数加一
-                console.log("赢了，保持当前下注方向。");
+                console.log("赢了，切换下注方向。");
+                betDirection = betDirection === 1 ? 2 : 1; // 赢了，切换方向
                 lossCount = 0; // 输的计数重置
             }
         }
