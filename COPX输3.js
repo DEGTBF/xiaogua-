@@ -88,23 +88,23 @@ async function mainLoop() {
             // 检查输赢
             if (balance < previousBalance) {
                 lossCount++; // 输了，增加输的次数
-                console.log("输了，当前连续输的次数:", lossCount);
                 winCount = 0; // 赢的计数重置
-
-                // 如果输的次数达到3次，切换下注方向
-                if (lossCount >= 3) {
-                    console.log("连续输了三次，切换下注方向。");
+                console.log("输了，当前连续输的次数:", lossCount);
+                
+                // 如果输的次数达到5次，切换下注方向
+                if (lossCount >= 5) {
+                    console.log("连续输了五次，切换下注方向。");
                     betDirection = betDirection === 1 ? 2 : 1; // 输了，切换方向
                     lossCount = 0; // 重置输的计数
                 }
             } else {
                 winCount++; // 赢了，增加赢的次数
-                console.log("赢了，当前连续赢的次数:", winCount);
                 lossCount = 0; // 输的计数重置
-
-                // 如果赢的次数达到3次，切换下注方向
-                if (winCount >= 3) {
-                    console.log("连续赢了三次，切换下注方向。");
+                console.log("赢了，当前连续赢的次数:", winCount);
+                
+                // 如果赢的次数达到5次，切换下注方向
+                if (winCount >= 5) {
+                    console.log("连续赢了五次，切换下注方向。");
                     betDirection = betDirection === 1 ? 2 : 1; // 赢了，切换方向
                     winCount = 0; // 重置赢的计数
                 }
@@ -148,6 +148,9 @@ async function mainLoop() {
         console.log(`等待 ${waitTime / 1000} 秒后重新下注...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
     }
+
+    // 输出总的输赢次数
+    console.log(`总共输的次数: ${lossCount}, 总共赢的次数: ${winCount}`);
 }
 
 // 启动主循环
