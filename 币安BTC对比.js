@@ -87,10 +87,11 @@ async function placeBet(betAmount, direction) {
 }
 
 // 随机生成下注金额的函数
-function getRandomBetAmount(baseAmount) {
-    const minAmount = Math.max(0, baseAmount - 2000); // 确保最小下注金额不为负
-    const maxAmount = baseAmount + 2000;
-    return Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount; // 生成随机下注金额
+function getRandomBetAmount(balance) {
+    const percentage = (Math.random() * (5 - 3) + 3).toFixed(1); // 随机生成 3% 到 5% 之间的百分比
+    const betAmount = Math.floor(balance * (percentage / 100)); // 根据随机百分比计算下注金额
+    console.log(`下注金额: ${betAmount} (基于 ${percentage}%)`);
+    return betAmount; // 返回下注金额
 }
 
 // 主循环函数
@@ -145,21 +146,7 @@ async function mainLoop() {
         console.log(`当前阶段: ${currentStage}, 当前币安价格: ${binancePrice}, 游戏价格: ${gamePrice}, 下注方向: ${betDirection === 1 ? "上涨" : "下跌"}`);
 
         // 检查余额并设定下注金额
-        let betAmount;
-        if (currentBalance < 10000) {
-            console.log("余额低于 10,000，停止游戏。");
-            break; // 余额低于 10,000，停止循环
-        } else if (currentBalance < 20000) {
-            betAmount = 5000; // 余额低于 20,000，下注 5,000
-        } else if (currentBalance < 100000) {
-            betAmount = getRandomBetAmount(10000); // 余额低于 100,000，下注 10,000 ± 2000
-        } else if (currentBalance < 500000) {
-            betAmount = getRandomBetAmount(20000); // 余额低于 500,000，下注 20,000 ± 2000
-        } else if (currentBalance < 1000000) {
-            betAmount = getRandomBetAmount(30000); // 余额低于 1,000,000，下注 30,000 ± 2000
-        } else {
-            betAmount = getRandomBetAmount(40000); // 余额大于 1,000,000，下注 40,000 ± 2000
-        }
+        let betAmount = getRandomBetAmount(currentBalance); // 计算下注金额
 
         // 下注
         const betResult = await placeBet(betAmount, betDirection);
@@ -189,6 +176,19 @@ async function mainLoop() {
 
         // 输出当前输赢统计
         console.log(`当前累计输的次数: ${totalLosses}, 当前累计赢的次数: ${totalWins}`);
+
+        // 检查输赢次数是否达到重置条件
+        if (totalWins > totalLosses + 10) {
+            console.log("赢的次数大于输的次数10次，重置输赢次数并等待5分钟...");
+            totalWins = 0;
+            totalLosses = 0;
+            await new Promise(resolve => setTimeout(resolve, 300000)); // 等待5分钟
+        } else if (totalLosses > totalWins + 10) {
+            console.log("输的次数大于赢的次数10次，重置输赢次数并等待5分钟...");
+            totalWins = 0;
+            totalLosses = 0;
+            await new Promise(resolve => setTimeout(resolve, 300000)); // 等待5分钟
+        }
 
         // 等待 12 到 15 秒之间的随机时间
         const waitTime = Math.floor(Math.random() * (15000 - 12000 + 1)) + 12000;
