@@ -24,12 +24,11 @@ async function getGamePrice() {
     return parseFloat(data.data.nowprice);
 }
 
-// 获取币安 BTC 价格的函数 (这里需要通过API获取币安价格)
+// 币安 API 获取 BTC 价格的函数
 async function getBinancePrice() {
-    // 这里应该调用 Binance 的 API 获取 BTC 价格
-    // 假设有个现成的获取 Binance 价格的函数
-    // return await fetchBinanceBTCPrice(); 
-    return 50000; // 示例: 假设币安的价格是50000
+    const response = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
+    const data = await response.json();
+    return parseFloat(data.price);
 }
 
 // 收集历史价格数据的函数，每秒获取一次价格
